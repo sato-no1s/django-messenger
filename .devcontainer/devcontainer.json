@@ -27,10 +27,11 @@
           "javascript": "node",
           "python": "python3"
         },
-        "python.defaultInterpreterPath": "/usr/local/bin/python3"
+        "python.defaultInterpreterPath": "/usr/local/python/current/bin/python3"
       }
     }
   },
-  "postCreateCommand": "sudo ln -s /usr/bin/pip3 /usr/bin/pip || true && pip install --upgrade pip",
+  "postCreateCommand": "bash setup.sh",
+  "postAttachCommand": "sudo service mariadb start",
   "remoteUser": "vscode"
 }
