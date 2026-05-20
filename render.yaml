@@ -8,7 +8,6 @@ services:
   - type: web
     name: cog_django_messenger
     env: python
-    pythonVersion: 3.12
     region: oregon
     buildCommand: './build.sh'
     startCommand: 'gunicorn config.wsgi'
@@ -16,6 +15,8 @@ services:
     branch: main
     healthCheckPath: /
     envVars:
+      - key: PYTHON_VERSION
+        value: '3.12'
       - key: DEBUG
         value: false
       - key: SECRET_KEY
