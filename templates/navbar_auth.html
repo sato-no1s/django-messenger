@@ -21,6 +21,8 @@
             {% user_display user %}
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="{% url 'user:user_detail' user.pk %}">ユーザ情報</a></li>
+            <li><a class="dropdown-item" href="{% url 'user:user_update' user.pk %}">ユーザ情報変更</a></li>
             <li><a class="dropdown-item" href="{% url 'account_change_password'%}">パスワード変更</a></li>
             <li><a class="dropdown-item" href="{% url 'account_logout'%}">ログアウト</a></li>
           </ul>

@@ -5,6 +5,46 @@
 {% block content %}
 <div class="container mt-4">
     <div class="container">
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white">グループ</div>
+            <div class="card-body">
+                <p class="card-text">トークを行うグループを管理します</p>
+                <a href="{% url 'messenger:group_list' %}"
+                    class="btn btn-primary">一覧</a>
+            </div>
+        </div>        
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>名前</th>
+                    <th>参加</th>
+                    <th>トーク</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in object_list %}
+                <tr>
+                    <td>{{o.id}}</td>
+                    <td>{{o.name}}</td>
+                    <td>
+                    {% if o.attend_count == 0 %}
+                    <a href="{% url 'messenger:group_user_create' o.id %}">参加する</a>
+                    {% else %}
+                    参加済み
+                    {% endif %}
+                    </td>
+                    <td>
+                    {% if o.attend_count > 0 %}
+                    <a href="{% url 'messenger:message_talk' o.id %}">トークへ移動</a>
+                    {% else %}
+                    トークに未参加です
+                    {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>        
     </div>
 </div>
 {% endblock %}
