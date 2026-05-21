@@ -225,3 +225,8 @@ if RENDER:
         "whitenoise.middleware.WhiteNoiseMiddleware",    
     ]
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+    # 管理者設定用    
+    SUPERUSER_NAME = env.str('SUPERUSER_NAME')
+    SUPERUSER_EMAIL = env.str('SUPERUSER_EMAIL')
+    SUPERUSER_PASSWORD = env.str('SUPERUSER_PASSWORD')
