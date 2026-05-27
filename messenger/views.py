@@ -26,7 +26,7 @@ from .models import Message
 from .forms import GroupForm
 from .forms import MessageForm
 
-from lib.ai_engine import ask_ai
+from utils.ai_engine import ask_ai
 from django.db import connection
 from django.utils import timezone
 
