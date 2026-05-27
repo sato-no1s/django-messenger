@@ -11,4 +11,5 @@ urlpatterns = [
     path('group/update/<int:pk>', views.GroupUpdateView.as_view(), name="group_update"),
     path('group_user/create/<int:group_id>', views.GroupUserCreateView.as_view(), name='group_user_create'),
     path('message/talk/<int:group_id>', views.MessageTalkView.as_view(), name='message_talk'),
+    path('message/aitalk/<int:group_id>', views.MessageAITalkView.as_view(), name='message_ai_talk'),
 ]

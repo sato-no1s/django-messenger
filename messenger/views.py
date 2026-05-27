@@ -26,6 +26,11 @@ from .models import Message
 from .forms import GroupForm
 from .forms import MessageForm
 
+from lib.ai_engine import ask_ai
+from django.db import connection
+from django.utils import timezone
+
+
 # Create your views here.
 class IndexView(TemplateView):
     template_name = 'messenger/index.html'
@@ -49,8 +54,12 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         # 以下の2行でサブクエリを実行
         # サブクエリの作成
         query_gu = GroupUser.objects.filter(user=user_id, group=OuterRef('pk'))
+        query_all = GroupUser.objects.filter(group=OuterRef('pk')).values('group').annotate(c=Count('*')).values('c')
         # メインクエリの作成
-        object_list = Group.objects.annotate(attend_count=Count(Subquery(query_gu.values('user')[:1])))
+        object_list = Group.objects.annotate(
+            attend_count=Count(Subquery(query_gu.values('user')[:1])),
+            count=Subquery(query_all)
+        )
         # グループ一覧とログインユーザの参加可否の結果を結合したQuerySet
         context['object_list'] = object_list
         return context
@@ -172,6 +181,75 @@ class MessageTalkView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         # メッセージの実際の登録処理実行
         message.save()
         
+        # フラッシュメッセージを設定
+        messages.success(self.request, self.success_message)
+        # 現在のビューにリダイレクト
+        return redirect(self.get_success_url())
+
+class MessageAITalkView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    model = Message
+    form_class = MessageForm
+    template_name = 'messenger/message/talk.html'
+    success_message = '新規メッセージを投稿しました'
+    
+    def get_success_url(self):
+        # パス変数からグループIDの取得
+        group_id = self.kwargs.get('group_id')
+        # 登録処理終了後、現在のビューに移動する
+        return reverse('messenger:message_ai_talk', kwargs={'group_id': group_id})
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'メッセージ一覧＆新規投稿'
+        
+        # パス変数からグループIDを取得
+        group_id = self.kwargs.get('group_id')
+        
+        # パス変数で指定されたグループのメッセージ一覧を取得
+        object_list = Message.objects.filter(group=group_id).select_related('user').order_by('created_at')
+        context['object_list'] = object_list
+        
+        # パス変数で指定されたグループのモデルを取得
+        object = Group.objects.filter(pk=group_id).first()
+        context['object'] = object
+        
+        # 現在のビュー自身をテンプレートに渡す
+        context['view'] = self
+        # 現在のビュー自身をテンプレートに渡す
+        context['is_ai'] = True
+
+        return context
+    
+    def form_valid(self, form):
+        # パス変数からグループIDを取得
+        group_id = self.kwargs.get('group_id')
+        # ログインユーザ情報を取得
+        user_id = self.request.user.id
+        
+        # データベース保存前のモデルインスタンスを取得
+        message = form.save(commit=False)
+        # グループIDを代入
+        message.group_id = group_id
+        # ユーザIDを代入
+        message.user_id = user_id
+        # メッセージの実際の登録処理実行
+        message.save()
+
+        user_text = message.body
+        ai_response_text = ask_ai(user_text)
+        now = timezone.now()
+        # Message.objects.create(
+        #     group_id=group_id,
+        #     user_id=0, # AIのIDとして0を指定
+        #     body=ai_response_text
+        # )        
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "INSERT INTO messenger_message (body, group_id, user_id, created_at, modified_at) "
+                "VALUES (%s, %s, %s, %s, %s)",
+                [ai_response_text, group_id, 0, now, now] # user_idに0を指定
+            )
+
         # フラッシュメッセージを設定
         messages.success(self.request, self.success_message)
         # 現在のビューにリダイレクト

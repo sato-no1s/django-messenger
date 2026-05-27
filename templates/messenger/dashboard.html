@@ -35,7 +35,9 @@
                     {% endif %}
                     </td>
                     <td>
-                    {% if o.attend_count > 0 %}
+                    {% if o.attend_count > 0 and o.count == 1 %}
+                    <a href="{% url 'messenger:message_ai_talk' o.id %}">AIとトークへ移動</a>
+                    {% elif o.attend_count > 0 %}
                     <a href="{% url 'messenger:message_talk' o.id %}">トークへ移動</a>
                     {% else %}
                     トークに未参加です

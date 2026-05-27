@@ -218,6 +218,8 @@ SOCIALACCOUNT_PROVIDERS = {
 
 # Django-allauth関連の設定ここまで
 
+GEMINI_API_KEY = env.str('GEMINI_API_KEY')
+
 RENDER = env.bool('RENDER')
 if RENDER:
     MIDDLEWARE += [

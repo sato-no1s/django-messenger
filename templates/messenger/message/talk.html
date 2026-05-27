@@ -27,8 +27,11 @@
         </div>
     {% endfor %}
     </div>
-    
+    {% if is_ai %}
+    <form action="{% url 'messenger:message_ai_talk' view.kwargs.group_id %}" method="post" novalidate>
+    {% else %}
     <form action="{% url 'messenger:message_talk' view.kwargs.group_id %}" method="post" novalidate>
+    {% endif %}
         {% csrf_token %}
         {% bootstrap_form_errors form %}
         {% bootstrap_form form layout='inline' %}
