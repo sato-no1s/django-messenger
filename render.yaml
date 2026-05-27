@@ -10,7 +10,7 @@ services:
     env: python
     region: oregon
     buildCommand: './build.sh'
-    startCommand: 'gunicorn config.wsgi'
+    startCommand: 'gunicorn config.wsgi --workers 1 --threads 2'
     plan: free
     branch: main
     healthCheckPath: /
